@@ -10,9 +10,17 @@ import { Volunteer } from '@/components/sections/Volunteer'
 import { Leadership } from '@/components/sections/Leadership'
 import { Contact } from '@/components/sections/Contact'
 import { scrollToId } from '@/lib/scroll'
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 export default function Home() {
   const location = useLocation()
+
+  usePageMeta({
+    title: 'Dilutha Weerasinghe | Data Scientist & AI/ML',
+    description:
+      'Dilutha Weerasinghe is a Data Scientist specializing in AI, Machine Learning, and Business Information Systems. Explore data-driven projects and case studies.',
+    path: '/',
+  })
 
   useEffect(() => {
     if (!location.hash) return

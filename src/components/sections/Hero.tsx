@@ -113,19 +113,18 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-void" />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pt-24">
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-6 font-mono text-sm tracking-widest text-ink-muted"
-        >
-          <RoleRotator />
-        </motion.p>
-
         <h1
           ref={headlineRef}
           className="max-w-4xl text-5xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl lg:text-7xl"
         >
+          <motion.span
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-6 block font-mono text-sm font-normal normal-case tracking-widest text-ink-muted"
+          >
+            Dilutha Weerasinghe — <RoleRotator />
+          </motion.span>
           <span className="block overflow-hidden">
             <span data-line className="block">
               Building intelligent

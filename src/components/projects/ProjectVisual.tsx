@@ -10,7 +10,7 @@ export function ProjectVisual({ project, compact = false }: { project: Project; 
     return (
       <img
         src={projectImages[visual.imageKey]}
-        alt={project.title}
+        alt={compact ? `${project.title} project preview` : `${project.title} case study screenshot`}
         className="h-full w-full object-cover"
         loading="lazy"
       />

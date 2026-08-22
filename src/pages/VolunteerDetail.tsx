@@ -7,10 +7,33 @@ import { PageTransition } from '@/components/layout/PageTransition'
 import { Badge } from '@/components/ui/Badge'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import { volunteerEntries } from '@/data/volunteer'
+import { usePageMeta } from '@/hooks/usePageMeta'
+import { absoluteUrl, SITE_URL } from '@/lib/seo'
 
 export default function VolunteerDetail() {
   const { id } = useParams()
   const entry = volunteerEntries.find((e) => e.id === id)
+
+  usePageMeta({
+    title: entry
+      ? `${entry.organization} | Dilutha Weerasinghe`
+      : 'Volunteer Work | Dilutha Weerasinghe',
+    description: entry?.description ?? 'Volunteer and leadership work by Dilutha Weerasinghe.',
+    path: `/volunteer/${id}`,
+    type: 'article',
+    structuredData: entry
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'CreativeWork',
+          name: entry.organization,
+          description: entry.description,
+          url: absoluteUrl(`/volunteer/${entry.id}`),
+          ...(entry.links.github ? { codeRepository: entry.links.github } : {}),
+          keywords: entry.techStack.join(', '),
+          author: { '@type': 'Person', name: 'Dilutha Weerasinghe', url: SITE_URL },
+        }
+      : undefined,
+  })
 
   useEffect(() => {
     window.scrollTo({ top: 0 })

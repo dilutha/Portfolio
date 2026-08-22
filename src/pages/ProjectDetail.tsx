@@ -10,6 +10,9 @@ import { ProjectVisual } from '@/components/projects/ProjectVisual'
 import { LangGraphDiagram } from '@/components/projects/diagrams/LangGraphDiagram'
 import { FusionDiagram } from '@/components/projects/diagrams/FusionDiagram'
 import { projects } from '@/data/projects'
+import { projectImages } from '@/assets/projectImages'
+import { usePageMeta } from '@/hooks/usePageMeta'
+import { absoluteUrl, SITE_URL } from '@/lib/seo'
 
 const TAG_LABEL: Record<string, string> = {
   'ai-ml': 'AI & ML',
@@ -20,6 +23,26 @@ const TAG_LABEL: Record<string, string> = {
 export default function ProjectDetail() {
   const { slug } = useParams()
   const project = projects.find((p) => p.slug === slug)
+
+  usePageMeta({
+    title: project ? `${project.title} | Dilutha Weerasinghe` : 'Project | Dilutha Weerasinghe',
+    description: project?.summary ?? 'A data science and AI/ML project by Dilutha Weerasinghe.',
+    path: `/projects/${slug}`,
+    image: project && project.visual.type === 'image' ? absoluteUrl(projectImages[project.visual.imageKey]) : undefined,
+    type: 'article',
+    structuredData: project
+      ? {
+          '@context': 'https://schema.org',
+          '@type': project.links.github ? 'SoftwareSourceCode' : 'CreativeWork',
+          name: project.title,
+          description: project.summary,
+          url: absoluteUrl(`/projects/${project.slug}`),
+          ...(project.links.github ? { codeRepository: project.links.github } : {}),
+          keywords: project.techStack.join(', '),
+          author: { '@type': 'Person', name: 'Dilutha Weerasinghe', url: SITE_URL },
+        }
+      : undefined,
+  })
 
   useEffect(() => {
     window.scrollTo({ top: 0 })

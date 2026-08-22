@@ -18,15 +18,17 @@ function App() {
       <LoadingScreen />
       <CursorFollower />
       <Navbar />
-      <Suspense fallback={null}>
-        <AnimatePresence initial={false}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Home />} />
-            <Route path="/projects/:slug" element={<ProjectDetail />} />
-            <Route path="/volunteer/:id" element={<VolunteerDetail />} />
-          </Routes>
-        </AnimatePresence>
-      </Suspense>
+      <main>
+        <Suspense fallback={null}>
+          <AnimatePresence initial={false}>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Home />} />
+              <Route path="/projects/:slug" element={<ProjectDetail />} />
+              <Route path="/volunteer/:id" element={<VolunteerDetail />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
+      </main>
       <Footer />
     </>
   )
