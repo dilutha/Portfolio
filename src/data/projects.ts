@@ -1,4 +1,4 @@
-export type ProjectTag = 'ai-ml' | 'web' | 'data'
+export type ProjectTag = 'ai-ml' | 'web' | 'data' | 'uiux'
 
 export interface ProjectLinks {
   github?: string
@@ -13,10 +13,17 @@ export type ProjectVisual =
 export interface Project {
   slug: string
   title: string
+  /** Short project-type line shown above the title, e.g. "AI Career Intelligence Platform". */
+  category?: string
+  /** 'design' marks UI/UX work so it is never presented as a shipped software build. */
+  kind?: 'engineering' | 'design'
   tags: ProjectTag[]
   summary: string
   description: string
+  /** Technologies actually present in the repository / deliverable. */
   techStack: string[]
+  /** Target-architecture technologies on the roadmap — never shown as implemented. */
+  plannedStack?: string[]
   achievements: string[]
   features: string[]
   honestTradeoffs?: string[]
@@ -24,13 +31,140 @@ export interface Project {
   visual: ProjectVisual
   /** Optional supplementary architecture diagram shown on the case-study page only. */
   architectureDiagram?: 'langgraph' | 'fusion'
+  /** Renders a dedicated, long-form case-study component on the detail page. */
+  caseStudy?: 'careerlense' | 'pneumoscan'
   featured?: boolean
 }
 
+const UNISPORT_HUB_FIGMA_URL =
+  'https://www.figma.com/proto/Nq7mn37Qpqwz2aNXu6HUMj/UniSport-Hub-%E2%80%93-UX-Prototype?node-id=2003-3&starting-point-node-id=2003%3A3&t=uBSJAM4RjfmGA7YE-1'
+
+
 export const projects: Project[] = [
+  {
+    slug: 'careerlense-ai',
+    title: 'CareerLense AI',
+    category: 'AI / Generative AI / Full Stack',
+    kind: 'engineering',
+    tags: ['ai-ml', 'web', 'data'],
+    summary:
+      'An AI career-intelligence platform that measures career readiness against real job requirements — skill-gap analysis, CV tailoring, interview coaching, and personalised career recommendations, grounded in each candidate’s own profile data.',
+    description:
+      'CareerLense AI turns "I’m looking for a job" into "I’m ready for this job." It models a candidate’s CV, education, projects, experience, and skills as structured data, ingests and normalises real job postings, then combines deterministic matching with Gemini-powered reasoning to explain exactly where a candidate stands for a target role and what to do next. It is being built progressively: the product layer is live today on Next.js, Supabase, and Gemini, while a Python/FastAPI, RAG, and multi-agent target architecture is on the roadmap.',
+    techStack: [
+      'Next.js 16',
+      'React 19',
+      'TypeScript',
+      'Tailwind CSS 4',
+      'Supabase',
+      'PostgreSQL',
+      'Google Gemini',
+      'Zod',
+      'Vitest',
+      'REST API',
+      'Framer Motion',
+      'Three.js',
+      'Vercel',
+    ],
+    plannedStack: [
+      'Python',
+      'FastAPI',
+      'RAG',
+      'LlamaIndex',
+      'LangGraph',
+      'pgvector',
+      'Docker',
+      'GitHub Actions',
+      'AWS',
+      'Snowflake',
+      'Airflow',
+      'dbt',
+      'OpenTelemetry',
+      'Prometheus',
+      'Grafana',
+      'Langfuse',
+      'Kubernetes / EKS',
+    ],
+    achievements: [
+      'Versioned REST API (/api/v1, 22 routes, OpenAPI spec) for profile, resumes, jobs, applications, interview, and career analysis — alongside a streaming NDJSON chat endpoint',
+      '12 Supabase/PostgreSQL migrations modelling profiles, skills, resumes, jobs, matches, applications, interviews, roadmaps, and chat state, with Row Level Security on every user-owned table',
+      'Multi-source job ingestion with normalisation, cross-source de-duplication, freshness checks, and deterministic match/rank scoring',
+      'Gemini structured outputs validated with Zod for CV parsing and analysis; CV tailoring grounded in verified candidate facts rather than invented experience',
+      'Unit-tested domain logic (Vitest) across agent state, job matching, readiness scoring, skill-gap priority, and API auth boundaries',
+    ],
+    features: [
+      'Career readiness and skill-gap intelligence against real market demand for a target role',
+      'CV upload, parsing, scoring, job-specific tailoring, ATS keyword analysis, and cover-letter generation',
+      'Interview coach: role- and company-specific questions, answer evaluation, feedback, and follow-up questions',
+      'Stateful conversational job-search agent that refines results across turns without re-asking',
+      'Personalised learning roadmap, application tracking board, career analytics, and reminders',
+    ],
+    honestTradeoffs: [
+      'The AI layer today runs as TypeScript route handlers in Next.js that assemble structured context from Supabase and call Gemini — Python/FastAPI services, LangGraph agents, LlamaIndex, and vector retrieval (pgvector) are target architecture, not yet implemented',
+      'There are no Dockerfiles, CI workflows, or AWS deployment yet; the live app runs on Vercel with a managed Supabase project',
+      'A WSO2 API Manager gateway has been designed for the /api/v1 surface, but WSO2 itself is not yet deployed — only the backend behind it is live-verified',
+      'The SerpApi Google Jobs provider is implemented but not live-tested (no API key configured); local job-board discovery is live',
+    ],
+    links: {
+      github: 'https://github.com/dilutha/CareerLense-Ai',
+      live: 'https://careerlense-ai.vercel.app',
+    },
+    visual: { type: 'image', imageKey: 'careerlense', aspectRatio: '3/2' },
+    caseStudy: 'careerlense',
+    featured: true,
+  },
+  {
+    slug: 'denguesense',
+    title: 'DengueSense',
+    category: 'Hybrid AI Decision-Support System for Dengue Outbreak Prediction',
+    tags: ['ai-ml', 'data'],
+    summary:
+      'An explainable hybrid AI decision-support system for early dengue outbreak prediction across 25 Sri Lankan districts, fusing five independent models into one auditable recommendation.',
+    description:
+      'DengueSense combines regression, classification, time-series forecasting, and a rule-based expert system, then fuses their outputs through a deliberately transparent — not learned — decision engine. In a public-health context, the priority is an auditable "here is exactly why this escalated," not a marginally better black box.',
+    techStack: [
+      'FastAPI',
+      'Python',
+      'SQLAlchemy',
+      'PostgreSQL (Supabase)',
+      'LightGBM',
+      'XGBoost',
+      'Prophet',
+      'SHAP',
+      'scikit-learn',
+    ],
+    achievements: [
+      'LightGBM multi-horizon case regression: R² 0.894, MAPE 28.98% (t+1 horizon)',
+      'XGBoost 4-class risk classification: 83.5% accuracy, ROC-AUC (macro) 0.964',
+      '25 per-district Facebook Prophet models for weekly case forecasting',
+      'A 26-rule forward-chaining Expert System plus SHAP-driven natural-language explanations',
+      '105-test backend security suite covering auth, rate limiting, model-integrity checksums, and path-traversal defenses',
+    ],
+    features: [
+      'Decision Fusion engine with an asymmetric, caution-biased escalation policy — a single corroborating high-risk signal escalates the alert, and it never auto-downgrades below the classifier’s own level',
+      'Confidence scoring that weights cross-source model agreement (65%) above any single model’s internal confidence (35%)',
+      'SHAP TreeExplainer generates natural-language explanations for every prediction (e.g. "risk is Critical mainly due to an outlier case count and a rising 4-week trend")',
+      'GIS-aware district centroids feed both the models and a map endpoint',
+      'Twelve read-only dashboard endpoints (trends, weather correlation, model performance, SHAP summary, fusion stats) designed to degrade gracefully on empty data',
+      'Every ML artifact is SHA-256 checksummed and verified before deserialization',
+    ],
+    honestTradeoffs: [
+      'The README describes a Next.js dashboard, but the frontend was a deliberate Phase 1 backend-only build — no UI yet consumes the new dashboard endpoints',
+      'Decision Fusion weights (0.5 / 0.3 / 0.2) are fixed by design, not learned or independently calibrated',
+      'Rate limiting and dashboard caching are in-memory and single-process — would need Redis for a multi-instance deployment',
+      'Two real data bugs were found and fixed via live verification (a centroid key-casing mismatch and a misspelled district name) — documented rather than hidden',
+    ],
+    links: {
+      github: 'https://github.com/dilutha/DengueSense',
+    },
+    visual: { type: 'image', imageKey: 'denguesense', aspectRatio: '3/2' },
+    architectureDiagram: 'fusion',
+    featured: true,
+  },
   {
     slug: 'kapruka-ai-agent',
     title: 'Kapruka AI Shopping Assistant',
+    category: 'AI-Powered Shopping Assistant',
     tags: ['ai-ml', 'web'],
     summary:
       'A multilingual agentic shopping assistant for the Kapruka e-commerce platform — LangGraph orchestration, real MCP tool-calling, and conversational checkout in English, Sinhala, and Singlish.',
@@ -77,55 +211,48 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    slug: 'denguesense',
-    title: 'DengueSense',
-    tags: ['ai-ml', 'data'],
+    slug: 'pneumonia-detection',
+    title: 'PneumoScan AI',
+    category: 'AI-Powered Pneumonia Detection from Chest X-Rays',
+    kind: 'engineering',
+    tags: ['ai-ml', 'web'],
     summary:
-      'An explainable hybrid AI decision-support system for early dengue outbreak prediction across 25 Sri Lankan districts, fusing five independent models into one auditable recommendation.',
+      'A full-stack clinical AI prototype designed for interpretable AI — a fine-tuned DenseNet121 flags pneumonia in chest X-rays and explains every prediction with Grad-CAM heatmaps.',
     description:
-      'DengueSense combines regression, classification, time-series forecasting, and a rule-based expert system, then fuses their outputs through a deliberately transparent — not learned — decision engine. In a public-health context, the priority is an auditable "here is exactly why this escalated," not a marginally better black box.',
+      'PneumoScan AI is a full-stack clinical AI prototype, designed for interpretable AI, that classifies chest X-ray images as NORMAL or PNEUMONIA using deep learning and provides visual explainability through Grad-CAM heatmaps. The goal is not only to classify an X-ray but also to make the model’s decision interpretable. It evolved from a Streamlit CNN prototype into a DenseNet121 transfer-learning model served by FastAPI, with a Next.js frontend and Supabase persistence.',
     techStack: [
+      'DenseNet121',
+      'TensorFlow / Keras',
+      'Grad-CAM',
       'FastAPI',
+      'Next.js',
+      'TypeScript',
+      'Tailwind CSS',
+      'Supabase',
+      'OpenCV',
       'Python',
-      'SQLAlchemy',
-      'PostgreSQL (Supabase)',
-      'LightGBM',
-      'XGBoost',
-      'Prophet',
-      'SHAP',
-      'scikit-learn',
     ],
     achievements: [
-      'LightGBM multi-horizon case regression: R² 0.894, MAPE 28.98% (t+1 horizon)',
-      'XGBoost 4-class risk classification: 83.5% accuracy, ROC-AUC (macro) 0.964',
-      '25 per-district Facebook Prophet models for weekly case forecasting',
-      'A 26-rule forward-chaining Expert System plus SHAP-driven natural-language explanations',
-      '105-test backend security suite covering auth, rate limiting, model-integrity checksums, and path-traversal defenses',
+      'DenseNet121 (ImageNet) fine-tuned in two phases for NORMAL vs PNEUMONIA classification at 224×224',
+      'Reported project evaluation of AUC-ROC ~0.97+, up from ~0.88 for the legacy CNN prototype',
+      'Grad-CAM heatmaps anchored on conv5_block16_concat explain every prediction',
     ],
     features: [
-      'Decision Fusion engine with an asymmetric, caution-biased escalation policy — a single corroborating high-risk signal escalates the alert, and it never auto-downgrades below the classifier’s own level',
-      'Confidence scoring that weights cross-source model agreement (65%) above any single model’s internal confidence (35%)',
-      'SHAP TreeExplainer generates natural-language explanations for every prediction (e.g. "risk is Critical mainly due to an outlier case count and a rising 4-week trend")',
-      'GIS-aware district centroids feed both the models and a map endpoint',
-      'Twelve read-only dashboard endpoints (trends, weather correlation, model performance, SHAP summary, fusion stats) designed to degrade gracefully on empty data',
-      'Every ML artifact is SHA-256 checksummed and verified before deserialization',
-    ],
-    honestTradeoffs: [
-      'The README describes a Next.js dashboard, but the frontend was a deliberate Phase 1 backend-only build — no UI yet consumes the new dashboard endpoints',
-      'Decision Fusion weights (0.5 / 0.3 / 0.2) are fixed by design, not learned or independently calibrated',
-      'Rate limiting and dashboard caching are in-memory and single-process — would need Redis for a multi-instance deployment',
-      'Two real data bugs were found and fixed via live verification (a centroid key-casing mismatch and a misspelled district name) — documented rather than hidden',
+      'Drag-and-drop X-ray upload with prediction, confidence score, and severity indicator',
+      'Original, heatmap, and overlay views of each X-ray',
+      'Persistent prediction history in Supabase PostgreSQL and Storage',
     ],
     links: {
-      github: 'https://github.com/dilutha/DengueSense',
+      github: 'https://github.com/dilutha/Pneumonia_X-tray_Detection',
     },
-    visual: { type: 'image', imageKey: 'denguesense', aspectRatio: '3/2' },
-    architectureDiagram: 'fusion',
+    visual: { type: 'image', imageKey: 'pneumonia' },
+    caseStudy: 'pneumoscan',
     featured: true,
   },
   {
     slug: 'ridepulse',
-    title: 'RidePulse — Transport Intelligence',
+    title: 'RidePulse',
+    category: 'AI-Driven Transport Intelligence',
     tags: ['ai-ml', 'web'],
     summary:
       'AI-driven public transport platform with digital ticketing, real-time analytics, and ML-powered demand forecasting.',
@@ -149,21 +276,24 @@ export const projects: Project[] = [
   },
   {
     slug: 'farm-to-market',
-    title: 'Farmer-to-Market Optimization',
+    title: 'Farmer2Market',
+    category: 'Agricultural Technology',
     tags: ['ai-ml', 'web'],
     summary:
-      'A Laravel-based platform integrating XGBoost and Prophet models for crop demand forecasting and price prediction, connecting farmers directly with markets.',
+      'An agricultural marketplace that connects farmers directly with buyers and adds ML-driven crop price prediction (XGBoost) and demand forecasting (Prophet).',
     description:
-      'A full-stack platform that pairs a Laravel marketplace with a Flask-served ML layer, so farmers get demand forecasts and price predictions instead of guessing which crops to bring to market.',
-    techStack: ['Laravel', 'XGBoost', 'Prophet', 'Flask'],
+      'Farmer2Market pairs a Laravel MVC marketplace — Blade views for farmers, buyers, and administrators — with a separate Python ML service, so farmers can see predicted prices and forecast demand for their crops instead of guessing which crops to bring to market.',
+    techStack: ['Laravel', 'Blade', 'PHP', 'MVC', 'XGBoost', 'Prophet', 'FastAPI', 'Python', 'Streamlit'],
     achievements: [
-      'Crop demand forecasting and price prediction models serving the marketplace directly',
-      'Full-stack integration between a Laravel application and a Flask ML service',
+      'Per-crop price prediction models (XGBoost) and per-crop demand forecasting models (Prophet) trained on agricultural data',
+      'ML models served to the marketplace through a separate Python API (FastAPI)',
+      'Laravel MVC application with controllers and models for farmers, buyers, crops, carts, and administration',
     ],
     features: [
       'Crop price prediction',
-      'Demand forecasting per crop/market',
-      'Direct farmer-to-market connection flow',
+      'Crop demand forecasting',
+      'Direct farmer-to-market connection flow with buyer and admin dashboards',
+      'Standalone Streamlit app for exploring price and demand predictions',
     ],
     links: {
       github: 'https://github.com/dilutha/farm-to-market',
@@ -171,27 +301,48 @@ export const projects: Project[] = [
     visual: { type: 'image', imageKey: 'farmToMarket' },
   },
   {
-    slug: 'pneumonia-detection',
-    title: 'Pneumonia Detection from Chest X-rays',
-    tags: ['ai-ml'],
+    slug: 'unisport-hub',
+    title: 'UniSport Hub',
+    category: 'UI/UX Design',
+    kind: 'design',
+    tags: ['uiux'],
     summary:
-      'A CNN-based system for automated pneumonia detection from chest X-rays, with an interactive Streamlit dashboard.',
+      'A university sports platform UX/UI concept focused on improving the digital experience for university sports communities — designed and prototyped in Figma.',
     description:
-      'A deep-learning diagnostic aid: a convolutional neural network trained on chest X-ray imagery, wrapped in an interactive Streamlit dashboard for exploring predictions.',
-    techStack: ['TensorFlow', 'Keras', 'Streamlit', 'Python'],
-    achievements: [
-      'CNN model trained for automated pneumonia detection from chest X-ray images',
-      'Interactive Streamlit dashboard for live inference and exploration',
+      'UniSport Hub is a design project, not a software build. It reimagines how students and university sports teams discover campus grounds, courts, and indoor facilities and reserve them for matches and practice. The work follows a design-thinking process — understanding the booking experience, structuring the information architecture, mapping user flows, wireframing, and taking the result to a responsive, high-fidelity interactive prototype in Figma.',
+    techStack: [
+      'Figma',
+      'UX Research',
+      'Design Thinking',
+      'Information Architecture',
+      'User Flows',
+      'Wireframing',
+      'High-fidelity UI',
+      'Interactive Prototyping',
+      'Responsive Design',
     ],
-    features: ['Chest X-ray image classification', 'Interactive prediction dashboard'],
+    achievements: [
+      'Design-thinking process from problem framing and user needs through to an interactive prototype',
+      'Information architecture organised around three primary jobs: explore venues, check availability, and book',
+      'User flows and wireframes for venue discovery, booking, and booking management before any visual design',
+      'High-fidelity, responsive UI with a consistent visual system rooted in university branding',
+    ],
+    features: [
+      'Venue explorer for grounds, courts, and indoor sports complexes, with sport types and availability status',
+      'Availability calendar and a short, guided booking flow for matches and practices',
+      '"My Bookings" view for managing upcoming reservations',
+      'Campus map view for finding venues across the university',
+      'Usability-focused layout: clear status labels, large touch targets, and minimal steps to book',
+    ],
     links: {
-      github: 'https://github.com/dilutha/Pneumonia_X-tray_Detection',
+      external: { label: 'View Prototype', href: UNISPORT_HUB_FIGMA_URL },
     },
-    visual: { type: 'image', imageKey: 'pneumonia' },
+    visual: { type: 'image', imageKey: 'unisportHub', aspectRatio: '3/2' },
   },
   {
     slug: 'power-bi-dashboard',
     title: 'Power BI Analytics Dashboard',
+    category: 'Data Analytics / Business Intelligence',
     tags: ['data'],
     summary:
       'A business intelligence dashboard providing real-time insights and data visualization for strategic decision-making.',
@@ -215,4 +366,12 @@ export const projectFilters: { id: 'all' | ProjectTag; label: string }[] = [
   { id: 'ai-ml', label: 'AI & ML' },
   { id: 'web', label: 'Web Development' },
   { id: 'data', label: 'Data Analytics' },
+  { id: 'uiux', label: 'UI/UX Design' },
 ]
+
+export const TAG_LABEL: Record<ProjectTag, string> = {
+  'ai-ml': 'AI & ML',
+  web: 'Web',
+  data: 'Data',
+  uiux: 'UI/UX',
+}

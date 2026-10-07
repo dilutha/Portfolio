@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
@@ -9,15 +9,23 @@ import { MagneticButton } from '@/components/ui/MagneticButton'
 import { ProjectVisual } from '@/components/projects/ProjectVisual'
 import { LangGraphDiagram } from '@/components/projects/diagrams/LangGraphDiagram'
 import { FusionDiagram } from '@/components/projects/diagrams/FusionDiagram'
-import { projects } from '@/data/projects'
+import { projects, TAG_LABEL } from '@/data/projects'
 import { projectImages } from '@/assets/projectImages'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { absoluteUrl, SITE_URL } from '@/lib/seo'
 
-const TAG_LABEL: Record<string, string> = {
-  'ai-ml': 'AI & ML',
-  web: 'Web',
-  data: 'Data',
+// Long-form case studies are split into their own chunks.
+const CASE_STUDIES = {
+  careerlense: lazy(() =>
+    import('@/components/projects/careerlense/CareerLenseCaseStudy').then((m) => ({
+      default: m.CareerLenseCaseStudy,
+    })),
+  ),
+  pneumoscan: lazy(() =>
+    import('@/components/projects/pneumoscan/PneumoScanCaseStudy').then((m) => ({
+      default: m.PneumoScanCaseStudy,
+    })),
+  ),
 }
 
 export default function ProjectDetail() {
@@ -52,6 +60,9 @@ export default function ProjectDetail() {
     return <Navigate to="/" replace />
   }
 
+  const isDesign = project.kind === 'design'
+  const CaseStudy = project.caseStudy ? CASE_STUDIES[project.caseStudy] : null
+
   return (
     <PageTransition>
       <article className="bg-void pb-28 pt-28">
@@ -61,22 +72,28 @@ export default function ProjectDetail() {
             data-cursor-hover
             className="inline-flex items-center gap-2 font-mono text-sm text-ink-muted transition-colors hover:text-accent"
           >
-            <ArrowLeft size={15} /> Back to Projects
+            <ArrowLeft size={15} aria-hidden /> Back to Projects
           </Link>
 
           <div className="mt-8 flex flex-wrap gap-2">
             {project.tags.map((tag) => (
-              <Badge key={tag} tone="accent">
+              <Badge key={tag} tone={tag === 'uiux' ? 'violet' : 'accent'}>
                 {TAG_LABEL[tag]}
               </Badge>
             ))}
           </div>
 
+          {project.category && (
+            <p className="mt-5 font-mono text-xs uppercase tracking-widest text-ink-muted">
+              {project.category}
+            </p>
+          )}
+
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-4 text-4xl font-semibold tracking-tight text-ink sm:text-5xl"
+            className="mt-2 text-4xl font-semibold tracking-tight text-ink sm:text-5xl"
           >
             {project.title}
           </motion.h1>
@@ -97,13 +114,25 @@ export default function ProjectDetail() {
             className="mt-8 flex flex-wrap gap-4"
           >
             {project.links.github && (
-              <MagneticButton variant="secondary" href={project.links.github} target="_blank" rel="noreferrer">
+              <MagneticButton
+                variant="secondary"
+                href={project.links.github}
+                target="_blank"
+                rel="noreferrer"
+                ariaLabel={`View ${project.title} source code on GitHub (opens in a new tab)`}
+              >
                 <GithubIcon size={16} /> View Code
               </MagneticButton>
             )}
             {project.links.live && (
-              <MagneticButton variant="primary" href={project.links.live} target="_blank" rel="noreferrer">
-                Live Demo <ArrowUpRight size={16} />
+              <MagneticButton
+                variant="primary"
+                href={project.links.live}
+                target="_blank"
+                rel="noreferrer"
+                ariaLabel={`Open the ${project.title} live demo (opens in a new tab)`}
+              >
+                Live Demo <ArrowUpRight size={16} aria-hidden />
               </MagneticButton>
             )}
             {project.links.external && (
@@ -112,8 +141,9 @@ export default function ProjectDetail() {
                 href={project.links.external.href}
                 target="_blank"
                 rel="noreferrer"
+                ariaLabel={`${project.links.external.label} — ${project.title} (opens in a new tab)`}
               >
-                {project.links.external.label} <ArrowUpRight size={16} />
+                {project.links.external.label} <ArrowUpRight size={16} aria-hidden />
               </MagneticButton>
             )}
           </motion.div>
@@ -131,88 +161,112 @@ export default function ProjectDetail() {
             <ProjectVisual project={project} />
           </motion.div>
 
-          {project.architectureDiagram && (
-            <motion.section
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-10% 0px' }}
-              transition={{ duration: 0.6 }}
-              className="mt-8"
-            >
-              <h2 className="font-mono text-sm tracking-widest text-accent">
-                Architecture Overview
-              </h2>
-              <div className="mt-5 aspect-[16/9] overflow-hidden rounded-2xl border border-line">
-                {project.architectureDiagram === 'langgraph' ? (
-                  <LangGraphDiagram />
-                ) : (
-                  <FusionDiagram />
-                )}
+          {CaseStudy ? (
+            <Suspense fallback={<div className="mt-14 min-h-[60vh]" aria-busy="true" />}>
+              <CaseStudy project={project} />
+            </Suspense>
+          ) : (
+            <>
+              {project.architectureDiagram && (
+                <motion.section
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-10% 0px' }}
+                  transition={{ duration: 0.6 }}
+                  className="mt-8"
+                >
+                  <h2 className="font-mono text-sm tracking-widest text-accent">
+                    Architecture Overview
+                  </h2>
+                  <div className="mt-5 aspect-[16/9] overflow-hidden rounded-2xl border border-line">
+                    {project.architectureDiagram === 'langgraph' ? (
+                      <LangGraphDiagram />
+                    ) : (
+                      <FusionDiagram />
+                    )}
+                  </div>
+                </motion.section>
+              )}
+
+              <div className="mt-16 grid gap-14 sm:grid-cols-2">
+                <section>
+                  <h2 className="font-mono text-sm tracking-widest text-accent">
+                    {isDesign ? 'Design Process' : 'Key Achievements'}
+                  </h2>
+                  <ul className="mt-5 flex flex-col gap-3">
+                    {project.achievements.map((a, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -12 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: '-10% 0px' }}
+                        transition={{ delay: i * 0.06 }}
+                        className="border-l-2 border-accent/40 pl-4 text-ink-muted"
+                      >
+                        {a}
+                      </motion.li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="font-mono text-sm tracking-widest text-accent">
+                    {isDesign ? 'Experience Highlights' : 'Features'}
+                  </h2>
+                  <ul className="mt-5 flex flex-col gap-3">
+                    {project.features.map((f, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -12 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: '-10% 0px' }}
+                        transition={{ delay: i * 0.06 }}
+                        className="border-l-2 border-line-strong pl-4 text-ink-muted"
+                      >
+                        {f}
+                      </motion.li>
+                    ))}
+                  </ul>
+                </section>
               </div>
-            </motion.section>
+
+              {project.honestTradeoffs && (
+                <section className="mt-16 rounded-2xl border border-line bg-surface-2/60 p-7">
+                  <h2 className="font-mono text-sm tracking-widest text-ink-muted">
+                    Engineering Honesty — Known Trade-offs
+                  </h2>
+                  <ul className="mt-5 flex flex-col gap-4">
+                    {project.honestTradeoffs.map((t, i) => (
+                      <li key={i} className="text-ink-muted">
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              <section className="mt-16">
+                <h2 className="font-mono text-sm tracking-widest text-accent">
+                  {isDesign ? 'Methods & Tools' : 'Tech Stack'}
+                </h2>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {project.techStack.map((tech) => (
+                    <Badge key={tech}>{tech}</Badge>
+                  ))}
+                </div>
+              </section>
+            </>
           )}
 
-          <div className="mt-16 grid gap-14 sm:grid-cols-2">
-            <section>
-              <h2 className="font-mono text-sm tracking-widest text-accent">Key Achievements</h2>
-              <ul className="mt-5 flex flex-col gap-3">
-                {project.achievements.map((a, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -12 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: '-10% 0px' }}
-                    transition={{ delay: i * 0.06 }}
-                    className="border-l-2 border-accent/40 pl-4 text-ink-muted"
-                  >
-                    {a}
-                  </motion.li>
-                ))}
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="font-mono text-sm tracking-widest text-accent">Features</h2>
-              <ul className="mt-5 flex flex-col gap-3">
-                {project.features.map((f, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -12 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: '-10% 0px' }}
-                    transition={{ delay: i * 0.06 }}
-                    className="border-l-2 border-line-strong pl-4 text-ink-muted"
-                  >
-                    {f}
-                  </motion.li>
-                ))}
-              </ul>
-            </section>
+          <div className="mt-20 border-t border-line pt-8">
+            <Link
+              to="/#projects"
+              data-cursor-hover
+              className="inline-flex items-center gap-2 font-mono text-sm text-ink-muted transition-colors hover:text-accent"
+            >
+              <ArrowLeft size={15} aria-hidden /> Back to Projects
+            </Link>
           </div>
-
-          {project.honestTradeoffs && (
-            <section className="mt-16 rounded-2xl border border-line bg-surface-2/60 p-7">
-              <h2 className="font-mono text-sm tracking-widest text-ink-muted">
-                Engineering Honesty — Known Trade-offs
-              </h2>
-              <ul className="mt-5 flex flex-col gap-4">
-                {project.honestTradeoffs.map((t, i) => (
-                  <li key={i} className="text-ink-muted">
-                    {t}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <section className="mt-16">
-            <h2 className="font-mono text-sm tracking-widest text-accent">Tech Stack</h2>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {project.techStack.map((tech) => (
-                <Badge key={tech}>{tech}</Badge>
-              ))}
-            </div>
-          </section>
         </div>
       </article>
     </PageTransition>

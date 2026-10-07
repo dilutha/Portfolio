@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { PageTransition } from '@/components/layout/PageTransition'
-import { Hero } from '@/components/sections/Hero'
-import { About } from '@/components/sections/About'
+import { PortraitStage } from '@/components/sections/PortraitStage'
 import { EducationSection } from '@/components/sections/EducationSection'
 import { Skills } from '@/components/sections/Skills'
 import { Projects } from '@/components/sections/Projects'
@@ -16,9 +15,9 @@ export default function Home() {
   const location = useLocation()
 
   usePageMeta({
-    title: 'Dilutha Weerasinghe | Data Scientist & AI/ML',
+    title: 'Dilutha Weerasinghe | AI Engineer & Data Scientist',
     description:
-      'Dilutha Weerasinghe is a Data Scientist specializing in AI, Machine Learning, and Business Information Systems. Explore data-driven projects and case studies.',
+      'Dilutha Weerasinghe is an AI engineer and data scientist working across artificial intelligence, generative AI, data science, software engineering, and business information systems. Explore case studies including CareerLense AI.',
     path: '/',
   })
 
@@ -30,8 +29,7 @@ export default function Home() {
 
   return (
     <PageTransition>
-      <Hero />
-      <About />
+      <PortraitStage />
       <EducationSection />
       <Skills />
       <Projects />

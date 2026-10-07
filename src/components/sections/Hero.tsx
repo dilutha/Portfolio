@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ArrowRight, Mail } from 'lucide-react'
@@ -44,7 +44,15 @@ function RoleRotator() {
   )
 }
 
-export function Hero() {
+interface HeroProps {
+  /**
+   * Portrait rendered in the hero flow (below lg). On desktop the portrait is
+   * owned by PortraitStage's sticky layer and the hero only reserves its slot.
+   */
+  portrait?: ReactNode
+}
+
+export function Hero({ portrait }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const reducedMotion = useReducedMotion()
@@ -75,6 +83,8 @@ export function Hero() {
   const fieldOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.15])
   const fieldScale = useTransform(scrollYProgress, [0, 1], [1, 1.15])
   const fieldY = useTransform(scrollYProgress, [0, 1], ['0%', '12%'])
+  const portraitY = useTransform(scrollYProgress, [0, 1], ['0%', reducedMotion ? '0%' : '12%'])
+  const portraitOpacity = useTransform(scrollYProgress, [0.45, 0.95], [1, reducedMotion ? 1 : 0.25])
 
   function handlePointerMove(e: PointerEvent<HTMLElement>) {
     if (reducedMotion) return
@@ -112,94 +122,104 @@ export function Hero() {
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-void" />
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pt-24">
-        <h1
-          ref={headlineRef}
-          className="max-w-4xl text-5xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl lg:text-7xl"
-        >
-          <motion.span
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pb-6 pt-24 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-8 lg:pb-0">
+        <div className="relative z-10 min-w-0">
+          <h1
+            ref={headlineRef}
+            className="max-w-4xl text-5xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl lg:text-[3.6rem] xl:text-[4.25rem]"
+          >
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mb-6 block font-mono text-sm font-normal normal-case tracking-widest text-ink-muted"
+            >
+              Dilutha Weerasinghe — <RoleRotator />
+            </motion.span>
+            <span className="block overflow-hidden">
+              <span data-line className="block">
+                Building intelligent
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span data-line className="block">
+                systems that drive
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span data-line className="text-gradient-animate block">
+                real-world impact.
+              </span>
+            </span>
+          </h1>
+
+          <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-6 block font-mono text-sm font-normal normal-case tracking-widest text-ink-muted"
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-8 max-w-xl text-lg leading-relaxed text-ink-muted"
           >
-            Dilutha Weerasinghe — <RoleRotator />
-          </motion.span>
-          <span className="block overflow-hidden">
-            <span data-line className="block">
-              Building intelligent
-            </span>
-          </span>
-          <span className="block overflow-hidden">
-            <span data-line className="block">
-              systems that drive
-            </span>
-          </span>
-          <span className="block overflow-hidden">
-            <span data-line className="text-gradient-animate block">
-              real-world impact.
-            </span>
-          </span>
-        </h1>
+            {profile.heroSubtext}
+          </motion.p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-8 max-w-xl text-lg leading-relaxed text-ink-muted"
-        >
-          {profile.heroSubtext}
-        </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.65 }}
+            className="mt-10 flex flex-wrap items-center gap-4"
+          >
+            <MagneticButton variant="primary" onClick={() => scrollToId('projects')}>
+              View Projects <ArrowRight size={16} />
+            </MagneticButton>
+            <MagneticButton variant="secondary" onClick={() => scrollToId('contact')}>
+              Get in Touch
+            </MagneticButton>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.65 }}
-          className="mt-10 flex flex-wrap items-center gap-4"
-        >
-          <MagneticButton variant="primary" onClick={() => scrollToId('projects')}>
-            View Projects <ArrowRight size={16} />
-          </MagneticButton>
-          <MagneticButton variant="secondary" onClick={() => scrollToId('contact')}>
-            Get in Touch
-          </MagneticButton>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="mt-12 flex items-center gap-5"
+          >
+            <a
+              href={profile.social.github}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              data-cursor-hover
+              className="text-ink-muted transition-colors hover:text-accent"
+            >
+              <GithubIcon size={20} />
+            </a>
+            <a
+              href={profile.social.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+              data-cursor-hover
+              className="text-ink-muted transition-colors hover:text-accent"
+            >
+              <LinkedinIcon size={20} />
+            </a>
+            <a
+              href={`mailto:${profile.email}`}
+              aria-label="Email"
+              data-cursor-hover
+              className="text-ink-muted transition-colors hover:text-accent"
+            >
+              <Mail size={20} />
+            </a>
+          </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-12 flex items-center gap-5"
-        >
-          <a
-            href={profile.social.github}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            data-cursor-hover
-            className="text-ink-muted transition-colors hover:text-accent"
-          >
-            <GithubIcon size={20} />
-          </a>
-          <a
-            href={profile.social.linkedin}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-            data-cursor-hover
-            className="text-ink-muted transition-colors hover:text-accent"
-          >
-            <LinkedinIcon size={20} />
-          </a>
-          <a
-            href={`mailto:${profile.email}`}
-            aria-label="Email"
-            data-cursor-hover
-            className="text-ink-muted transition-colors hover:text-accent"
-          >
-            <Mail size={20} />
-          </a>
-        </motion.div>
+        {portrait ? (
+          <motion.div className="relative z-0" style={{ y: portraitY, opacity: portraitOpacity }}>
+            {portrait}
+          </motion.div>
+        ) : (
+          <div aria-hidden className="hero-portrait-slot hidden lg:block" />
+        )}
       </div>
     </section>
   )

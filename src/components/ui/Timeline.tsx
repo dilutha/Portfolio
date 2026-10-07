@@ -23,8 +23,8 @@ export function Timeline({ children }: { children: ReactNode }) {
 
 interface TimelineItemProps {
   title: string
-  subtitle: string
-  period: string
+  subtitle?: string
+  period?: string
   index: number
   children?: ReactNode
 }
@@ -39,9 +39,9 @@ export function TimelineItem({ title, subtitle, period, index, children }: Timel
       className="relative"
     >
       <span className="absolute -left-8 top-1.5 h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_0_4px_rgba(0,255,166,0.15)] sm:-left-10" />
-      <p className="mb-1 font-mono text-xs tracking-widest text-accent">{period}</p>
+      {period && <p className="mb-1 font-mono text-xs tracking-widest text-accent">{period}</p>}
       <h3 className="text-xl font-semibold text-ink">{title}</h3>
-      <p className="mt-1 text-ink-muted">{subtitle}</p>
+      {subtitle && <p className="mt-1 text-ink-muted">{subtitle}</p>}
       {children}
     </motion.div>
   )

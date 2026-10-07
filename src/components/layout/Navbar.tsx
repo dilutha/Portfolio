@@ -7,6 +7,7 @@ import { profile } from '@/data/profile'
 import { scrollToId } from '@/lib/scroll'
 
 const NAV_LINKS = [
+  { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
   { id: 'education', label: 'Education' },
   { id: 'skills', label: 'Skills' },
@@ -63,14 +64,14 @@ export function Navbar() {
             {profile.initials.slice(1)}
           </Link>
 
-          <ul className="hidden items-center gap-1 md:flex">
+          <ul className="hidden items-center gap-1 lg:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
                 <button
                   type="button"
                   onClick={() => goToSection(link.id)}
                   data-cursor-hover
-                  className="rounded-full px-4 py-2 font-mono text-sm text-ink-muted transition-colors hover:text-accent"
+                  className="rounded-full px-2.5 py-2 font-mono text-sm text-ink-muted transition-colors hover:text-accent xl:px-4"
                 >
                   {link.label}
                 </button>
@@ -78,7 +79,7 @@ export function Navbar() {
             ))}
           </ul>
 
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <a
               href={profile.resumeUrl}
               download
@@ -93,7 +94,7 @@ export function Navbar() {
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="text-ink md:hidden"
+            className="text-ink lg:hidden"
           >
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -106,7 +107,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-void/95 backdrop-blur-xl md:hidden"
+            className="fixed inset-0 z-40 bg-void/95 backdrop-blur-xl lg:hidden"
           >
             <ul className="flex h-full flex-col items-center justify-center gap-6">
               {NAV_LINKS.map((link, i) => (
@@ -125,6 +126,19 @@ export function Navbar() {
                   </button>
                 </motion.li>
               ))}
+              <motion.li
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: NAV_LINKS.length * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <a
+                  href={profile.resumeUrl}
+                  download
+                  className="rounded-full border border-line-strong px-5 py-2 font-mono text-lg text-ink hover:border-accent hover:text-accent"
+                >
+                  Resume
+                </a>
+              </motion.li>
             </ul>
           </motion.div>
         )}

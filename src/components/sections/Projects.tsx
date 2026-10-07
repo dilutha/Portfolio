@@ -23,7 +23,7 @@ export function Projects() {
         <SectionHeading
           index="04 — Work"
           title="Selected case studies"
-          description="Six projects spanning agentic AI, explainable ML, and full-stack platforms — built from real repositories, not slideware."
+          description="Eight projects spanning AI career intelligence, agentic AI, explainable ML, full-stack platforms, and UX design — built from real repositories and prototypes, not slideware."
         />
 
         <div className="mb-10 flex flex-wrap gap-2">

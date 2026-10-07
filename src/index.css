@@ -153,6 +153,130 @@ body {
   background-size: 120px 120px;
 }
 
+/* ------------------------------------------------------------------
+   Hero portrait — transparent cutout blended into the hero scene.
+   Layers (back → front): decor svg → ::before glow → figure (cutout +
+   rim light) → ::after ground shadow. No rectangular box/shadow.
+------------------------------------------------------------------- */
+.hero-portrait {
+  position: relative;
+  isolation: isolate;
+  width: min(82vw, 340px);
+  aspect-ratio: 4 / 5;
+  margin-inline: auto;
+}
+
+.hero-portrait::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 42%;
+  width: 115%;
+  height: 85%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(closest-side at 50% 40%, rgb(0 255 166 / 0.2), rgb(0 255 166 / 0.06) 55%, transparent 100%),
+    radial-gradient(closest-side at 70% 65%, rgb(139 107 255 / 0.16), transparent 100%),
+    radial-gradient(closest-side at 30% 70%, rgb(62 197 255 / 0.1), transparent 100%);
+  filter: blur(24px);
+}
+
+.hero-portrait::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 4%;
+  width: 70%;
+  height: 9%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.55), transparent);
+  filter: blur(10px);
+}
+
+.hero-portrait__decor {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 40%;
+  width: 118%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.hero-portrait__orbit {
+  transform-origin: 200px 200px;
+  animation: hero-orbit 90s linear infinite;
+}
+
+@keyframes hero-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero-portrait__figure {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  /* Feather the cropped bottom edge into the page instead of a hard cut. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 68%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 68%, transparent 98%);
+}
+
+.hero-portrait__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  user-select: none;
+  /* Depth: soft contact shadow + faint on-palette edge separation. */
+  filter: drop-shadow(0 28px 36px rgb(0 0 0 / 0.55)) drop-shadow(0 0 18px rgb(0 255 166 / 0.08));
+}
+
+.hero-portrait__rim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-position: top center;
+  mask-position: top center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  /* Cool light from the glow side, gentle violet fill opposite — grades the
+     photo into the site palette without altering the subject. */
+  background:
+    linear-gradient(100deg, rgb(0 255 166 / 0.22) 0%, transparent 28%),
+    linear-gradient(260deg, rgb(139 107 255 / 0.18) 0%, transparent 30%);
+  mix-blend-mode: soft-light;
+}
+
+@media (min-width: 640px) {
+  .hero-portrait {
+    width: min(64vw, 380px);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* The slot is the empty placeholder Hero/About reserve for the shared,
+     sticky portrait (see PortraitStage) — it must match the portrait size. */
+  .hero-portrait,
+  .hero-portrait-slot {
+    width: min(34vw, 460px, calc((100svh - 8rem) * 2 / 3));
+    aspect-ratio: 2 / 3;
+    margin-inline: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

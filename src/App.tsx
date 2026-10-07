@@ -9,6 +9,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen'
 const Home = lazy(() => import('@/pages/Home'))
 const ProjectDetail = lazy(() => import('@/pages/ProjectDetail'))
 const VolunteerDetail = lazy(() => import('@/pages/VolunteerDetail'))
+const LeadershipDetail = lazy(() => import('@/pages/LeadershipDetail'))
 
 function App() {
   const location = useLocation()
@@ -25,6 +26,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/projects/:slug" element={<ProjectDetail />} />
               <Route path="/volunteer/:id" element={<VolunteerDetail />} />
+              <Route path="/leadership/:id" element={<LeadershipDetail />} />
             </Routes>
           </AnimatePresence>
         </Suspense>

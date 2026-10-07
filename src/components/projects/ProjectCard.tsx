@@ -1,17 +1,11 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, Sparkles } from 'lucide-react'
-import type { Project } from '@/data/projects'
+import { ArrowUpRight, PenTool, Sparkles } from 'lucide-react'
+import { TAG_LABEL, type Project } from '@/data/projects'
 import { Badge } from '@/components/ui/Badge'
 import { GithubIcon } from '@/components/icons/BrandIcons'
 import { useTilt } from '@/hooks/useTilt'
 import { ProjectVisual } from './ProjectVisual'
-
-const TAG_LABEL: Record<string, string> = {
-  'ai-ml': 'AI & ML',
-  web: 'Web',
-  data: 'Data',
-}
 
 export function ProjectCard({ project, index }: { project: Project; index: number }) {
   const tilt = useTilt<HTMLDivElement>({ strength: 5 })
@@ -65,6 +59,12 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
             </div>
           </motion.div>
 
+          {project.kind === 'design' && (
+            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-violet/50 bg-void/70 px-2.5 py-1 font-mono text-[10px] tracking-wide text-[#b9a6ff] backdrop-blur-md">
+              <PenTool size={11} /> Design Case Study
+            </span>
+          )}
+
           {project.featured && (
             <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-accent/40 bg-void/70 px-2.5 py-1 font-mono text-[10px] tracking-wide text-accent backdrop-blur-md">
               <Sparkles size={11} /> Featured
@@ -75,13 +75,18 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
         <div className="relative flex flex-1 flex-col gap-4 p-6">
           <div className="flex flex-wrap gap-2">
             {project.tags.map((tag) => (
-              <Badge key={tag} tone="accent">
+              <Badge key={tag} tone={tag === 'uiux' ? 'violet' : 'accent'}>
                 {TAG_LABEL[tag]}
               </Badge>
             ))}
           </div>
 
           <div>
+            {project.category && (
+              <p className="mb-1.5 font-mono text-[11px] uppercase tracking-widest text-ink-muted">
+                {project.category}
+              </p>
+            )}
             <Link to={`/projects/${project.slug}`} data-cursor-hover>
               <h3 className="text-xl font-semibold text-ink transition-colors group-hover:text-accent">
                 {project.title}
@@ -95,6 +100,11 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
               <Badge key={tech}>{tech}</Badge>
             ))}
             {project.techStack.length > 4 && <Badge>+{project.techStack.length - 4}</Badge>}
+            {project.plannedStack && (
+              <Badge tone="planned" title={`Planned: ${project.plannedStack.join(', ')}`}>
+                +{project.plannedStack.length} planned
+              </Badge>
+            )}
           </div>
 
           <div className="mt-auto flex items-center justify-between pt-2">
@@ -119,7 +129,8 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
                   data-cursor-hover
                   className="inline-flex items-center gap-1 font-mono text-xs text-ink-muted transition-colors hover:text-accent"
                 >
-                  Live Demo <ArrowUpRight size={13} />
+                  Live Demo <ArrowUpRight size={13} aria-hidden />
+                  <span className="sr-only"> for {project.title} (opens in a new tab)</span>
                 </a>
               )}
               {project.links.external && (
@@ -130,7 +141,8 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
                   data-cursor-hover
                   className="inline-flex items-center gap-1 font-mono text-xs text-ink-muted transition-colors hover:text-accent"
                 >
-                  {project.links.external.label} <ArrowUpRight size={13} />
+                  {project.links.external.label} <ArrowUpRight size={13} aria-hidden />
+                  <span className="sr-only"> for {project.title} (opens in a new tab)</span>
                 </a>
               )}
             </div>
